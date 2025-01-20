@@ -9,10 +9,10 @@ export class Program {
     */
     constructor(gl, vs, fs, uniforms){
         this.gl = gl;
-        this.program = link_program(gl, vs, fs);
+        this.program = link_program(this.gl, vs, fs);
         this.uniforms = {};
         uniforms.forEach(name => {
-            this.uniforms[name] = gl.getUniformLocation(this.program, name);
+            this.uniforms[name] = this.gl.getUniformLocation(this.program, name);
         });
     }
 }

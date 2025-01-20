@@ -19,17 +19,31 @@ const vsSource = `
 const fsSource = `
     precision highp float;
 
-    uniform float scale;
-    uniform vec3 offset;
+    #define WIDTH 800.0
+    #define HEIGHT 600.0
+
+    uniform vec2 size;
+    uniform vec2 pos;
 
     void main() {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        vec2 p = gl_FragCoord.xy;
+
+        if (pos.x <= p.x && p.x < pos.x + size.x && 
+            pos.y <= p.y && p.y < pos.y + size.y 
+        )
+        {
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+        else
+        {
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
     }
 `;
 
 const vs = compile_shader(gl, vsSource, gl.VERTEX_SHADER);
 const fs = compile_shader(gl, fsSource, gl.FRAGMENT_SHADER);
-const main = new Program(gl, vs, fs, ["scale", "offset"]);
+const main = new Program(gl, vs, fs, ["size", "pos"]);
 const buffer = make_array_buffer(gl, gl.STATIC_DRAW, new Float32Array([
     -1.0, 1.0,
     1.0, 1.0,
@@ -38,7 +52,7 @@ const buffer = make_array_buffer(gl, gl.STATIC_DRAW, new Float32Array([
 ]));
 
 /**
-* @param {WebGLProgram} program 
+* @param {Program} program 
 * @param {WebGLBuffer} buffer 
 */
 function draw_scene(program, buffer) {
@@ -52,7 +66,7 @@ function draw_scene(program, buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
     {
-        const vertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
+        const vertexPosition = gl.getAttribLocation(program.program, 'aVertexPosition');
         const numComponents = 2; // pull out 2 values per iteration
         const type = gl.FLOAT; // the data in the buffer is 32bit floats
         const normalize = false; // don't normalize
@@ -66,10 +80,12 @@ function draw_scene(program, buffer) {
             stride,
             offset,
         );
-        gl.enableVertexAttribArray(program, vertexPosition);
+        gl.enableVertexAttribArray(program.program, vertexPosition);
     }
 
-    gl.useProgram(program);
+    gl.useProgram(program.program);
+    gl.uniform2f(program.uniforms['size'], 100.0, 100.0);
+    gl.uniform2f(program.uniforms['pos'], 100.0, 100.0);
 
     {
         const offset = 0;
@@ -77,4 +93,4 @@ function draw_scene(program, buffer) {
         gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
     }
 }
-draw_scene(main.program, buffer);
+draw_scene(main, buffer);
