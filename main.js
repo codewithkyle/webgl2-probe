@@ -51,6 +51,38 @@ const buffer = make_array_buffer(gl, gl.STATIC_DRAW, new Float32Array([
     1.0, -1.0,
 ]));
 
+let pos = {
+    x: 10.0,
+    y: 10.0,
+};
+let velocity = {
+    x: -100.0,
+    y: -100.0,
+};
+const width = 100.0;
+const height = 100.0;
+
+let prevTimestamp = undefined;
+function next_frame(timestamp) {
+    const dt = (prevTimestamp - timestamp) * 0.001;
+    prevTimestamp = timestamp;
+
+    pos.x += velocity.x * dt;
+    pos.y += velocity.y * dt;
+
+    if (pos.x < 0 || pos.x + width > 800.0) velocity.x = -velocity.x;
+    if (pos.y < 0 || pos.y + height > 600.0) velocity.y = -velocity.y;
+
+    draw_scene(main, buffer);
+
+    window.requestAnimationFrame(next_frame);
+}
+function first_frame(timestamp) {
+    prevTimestamp = timestamp;
+    window.requestAnimationFrame(next_frame);
+}
+window.requestAnimationFrame(first_frame);
+
 /**
 * @param {Program} program 
 * @param {WebGLBuffer} buffer 
@@ -84,8 +116,8 @@ function draw_scene(program, buffer) {
     }
 
     gl.useProgram(program.program);
-    gl.uniform2f(program.uniforms['size'], 100.0, 100.0);
-    gl.uniform2f(program.uniforms['pos'], 100.0, 100.0);
+    gl.uniform2f(program.uniforms['size'], width, height);
+    gl.uniform2f(program.uniforms['pos'], pos.x, pos.y);
 
     {
         const offset = 0;
@@ -93,4 +125,3 @@ function draw_scene(program, buffer) {
         gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
     }
 }
-draw_scene(main, buffer);
