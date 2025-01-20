@@ -1,4 +1,4 @@
-import { compile_shader, hex_to_rgbaf, link_program } from "./utils.js";
+import { compile_shader, hex_to_rgbaf, link_program, make_array_buffer } from "./utils.js";
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.querySelector("#view");
@@ -9,11 +9,9 @@ if (gl === null) {
 
 const vsSource = `
     attribute vec4 aVertexPosition;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
 
     void main() {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        gl_Position = aVertexPosition;
     }
 `;
 
@@ -26,7 +24,23 @@ const fsSource = `
 const vs = compile_shader(gl, vsSource, gl.VERTEX_SHADER);
 const fs = compile_shader(gl, fsSource, gl.FRAGMENT_SHADER);
 const program = link_program(gl, vs, fs);
+const buffer = make_array_buffer(gl, gl.STATIC_DRAW, new Float32Array([
+    -1.0, 1.0,
+    1.0, 1.0,
+    -1.0, -1.0,
+    1.0, -1.0,
+]));
 
-gl.clearColor(...hex_to_rgbaf("#181818FF"));
-gl.clear(gl.COLOR_BUFFER_BIT);
+/**
+* @param {WebGLProgram} program 
+* @param {WebGLBuffer} buffer 
+*/
+function draw_scene(program, buffer) {
+    gl.clearColor(...hex_to_rgbaf("#FFFF00FF"));
+    gl.clearDepth(1.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+}
+draw_scene(program, buffer);

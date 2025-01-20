@@ -1,19 +1,20 @@
 /**
 * @param {WebGL2RenderingContext} gl 
+* @param {WebGL2RenderingContextBase} usage 
+* @param {Float32Array} positions 
+* @returns {WebGLBuffer}
+* @example make_array_buffer(gl, gl.STATIC_DRAW, new Float32Array([
+*   -1.0,  1.0,
+*   1.0,  1.0,
+*   -1.0, -1.0,
+*   1.0,  -1.0,
+*]));
 */
-export function create_buffer(gl) {
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const position = [
-        -1.0,  1.0,
-         1.0,  1.0,
-        -1.0, -1.0,
-         1.0,  -1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(position), gl.STATIC_DRAW);
-    return {
-        position: positionBuffer,
-    };
+export function make_array_buffer(gl, usage, positions){
+    const result = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, usage);
+    return result;
 }
 
 /**
