@@ -98,7 +98,7 @@ function next_frame(timestamp) {
 
     pos.x -= velocity.x * dt;
     pos.y -= velocity.y * dt;
-    if (blur > 0) blur -= 200 * dt;
+    blur = Math.max(0.0, blur - (200 * dt));
 
     if (pos.x < 0) {
         velocity.x = -velocity.x;
