@@ -12,7 +12,7 @@
 */
 export function make_array_buffer(gl, usage, positions){
     const result = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER);
+    gl.bindBuffer(gl.ARRAY_BUFFER, result);
     gl.bufferData(gl.ARRAY_BUFFER, positions, usage);
     return result;
 }
