@@ -1,5 +1,20 @@
 /**
-* @param {WebGL2RenderingContext} gl 
+* @param {WebGL2RenderingContext} gl
+* @param {WebGLShader} type 
+*/
+export function shader_type_to_string(gl, type) {
+    switch(type) {
+        case gl.FRAGMENT_SHADER:
+            return "FRAGMENT_SHADER";
+        case gl.VERTEX_SHADER:
+            return "VERTEX_SHADER";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+/**
+* @param {WebGL2RenderingContext} gl
 * @param {WebGL2RenderingContextBase} usage 
 * @param {Float32Array} positions 
 * @returns {WebGLBuffer}
@@ -49,8 +64,9 @@ export function compile_shader(gl, source, type) {
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         console.error(gl.getShaderInfoLog(shader));
+        const shaderType = shader_type_to_string(shader);
         gl.deleteShader(shader);
-        throw new Error("Failed to compile shader.");
+        throw new Error(`Failed to compile ${shaderType} shader.`);
     }
     return shader;
 }
